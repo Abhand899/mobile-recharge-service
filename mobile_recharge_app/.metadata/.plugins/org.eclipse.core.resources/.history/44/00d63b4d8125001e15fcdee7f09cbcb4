@@ -1,0 +1,135 @@
+package com.web.rechargeService.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+
+import com.web.rechargeService.entity.RechargePlans;
+import com.web.rechargeService.externalService.UserService;
+import com.web.rechargeService.repository.RechargeServiceRepository;
+
+@ExtendWith(MockitoExtension.class)
+public class RechargeServiceTest extends AbstractTestNGSpringContextTests {
+	
+	@Mock
+	RechargeServiceRepository rechargeRepository;
+	
+	@InjectMocks
+	RechargeServiceImpl rechargeServiceImpl;
+	
+	
+	@Mock
+	private UserService userService;
+	
+	@Test
+	public void addRechargePlanTest() {
+		long userId= 4l;
+		RechargePlans rechargeRecord = new RechargePlans();
+		rechargeRecord.setRechargeId(1l);;
+		rechargeRecord.setVendorName("Vodafone");
+		rechargeRecord.setDescription("5g speed with 2.5GB daily data and unlimited local/National calls.");
+		rechargeRecord.setAmount(999L);
+		rechargeRecord.setStatus("ACTIVE");
+		when(rechargeRepository.save(rechargeRecord)).thenReturn(rechargeRecord);
+		String rechargePlansFromService = rechargeServiceImpl.addRechargePlanDetails(userId,rechargeRecord);
+		assertEquals(rechargePlansFromService, rechargeRecord);
+	}
+	
+	@Test
+	public void getRechargeById() {
+		RechargePlans rechargePlan = new RechargePlans(3l, "Airtel", 
+				"5g speed with 1.5GB daily data and unlimited local/National calls.", 999l,"ACTIVE",2);
+		Optional<RechargePlans> optionalRechargePlanRecord = Optional.of(rechargePlan); 
+		when(rechargeRepository.findById(rechargePlan.getRechargeId())).thenReturn(optionalRechargePlanRecord);
+		RechargePlans rechargePlanResponse = rechargeServiceImpl.findById(rechargePlan.getRechargeId());
+		assertEquals(rechargePlanResponse, rechargePlan);
+	}
+	
+	@Test
+	public void getAllRechargePlanDetails() {
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(1L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(3L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		rechargePlanList.add(new RechargePlans(4l,"Airtel","5g speed with 2.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",1));
+		when(rechargeRepository.findAll()).thenReturn(rechargePlanList);
+		List<RechargePlans> rechargePlanResponse = rechargeServiceImpl.findAllRechargePlansDetails();
+		assertEquals(rechargePlanResponse, rechargePlanList);
+	}
+	
+	@Test
+	public void updateRechargePlanDetailsFailTest() {
+		long userId = 1l;
+		RechargePlans rechargePlan = new RechargePlans(6l, "Airtel", 
+				"5g speed with 1.5GB daily data and unlimited local/National calls.", 999l,"ACTIVE",2);
+		String rechargePlanResponse = rechargeServiceImpl.updateRechargePlansDetails(userId,rechargePlan, rechargePlan.getRechargeId());
+		assertEquals(rechargePlanResponse, "UNAUTHORIZED");
+	}
+	
+	@Test
+	public void deleteRechargePlanFailTest() {
+		long userId = 1l;
+		long rechargeId = 99l;
+		String response = rechargeServiceImpl.deleteRechargePlanDetailsByRechargeId(userId,rechargeId);
+		assertEquals(response, "UNAUTHORIZED");
+	}
+	
+	@Test
+	public void getVendornameByRechargeIdFailTest() {
+		long rechargeId = 99l;
+		String vendorName = "Airtel";
+		String response = rechargeServiceImpl.getVendorNameByRechargeId(rechargeId);
+		assertEquals(response, null);
+	}
+	
+	
+	@Test
+	public void getAllRechargePlanByIdTest() {
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		rechargeIds.add(3l);
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(1L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(3L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		when(rechargeRepository.getRechargePlansByRechargeIds(rechargeIds)).thenReturn(rechargePlanList);
+		List<RechargePlans> response = rechargeServiceImpl.getAllRechargePlansById(rechargeIds);
+		assertEquals(response, rechargePlanList);
+	}
+	
+	
+	@Test
+	public void cancelRechargePlanFailTest() {
+		Long rechargeId = 5l;
+		String response = rechargeServiceImpl.cancelRechargePlanByCustomer(rechargeId);
+		assertEquals(response,null);
+	}
+	
+	@Test
+	public void updateRechargePlanAfterCustomerActivityFailTest() {
+		Long rechargeId = 99l;
+		String response = rechargeServiceImpl.updateRechargePlanAfterCustomerActivity(rechargeId);
+		assertEquals(response, null);
+	}
+	
+	@Test
+	public void getAllActivePlansFailTest() {
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		List<RechargePlans> dummyRecord = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(1L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(3L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		rechargePlanList.add(new RechargePlans(4l,"Airtel","5g speed with 2.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",1));
+		List<RechargePlans> response = rechargeServiceImpl.getAllByActivePlans();
+		assertEquals(response, dummyRecord);
+	}
+}

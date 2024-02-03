@@ -1,0 +1,214 @@
+package com.web.rechargeService.controller;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.web.rechargeService.entity.RechargePlans;
+import com.web.rechargeService.exceptions.ResourceNotFoundException;
+import com.web.rechargeService.externalService.UserService;
+import com.web.rechargeService.service.RechargeServiceImpl;
+
+
+@ExtendWith(MockitoExtension.class)
+public class RechargeControllerTest {
+
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@Mock
+	RechargeServiceImpl rechargeServicempl;
+	
+	@MockBean
+	private UserService userService;
+	
+	@BeforeEach
+	public void setup() {
+		MockitoAnnotations.openMocks(this);
+	}
+	
+	@InjectMocks
+	RechargeServiceController rechargeServiceController;
+	
+	
+	@Test
+	public void addRechargePlanTest() {
+		long userId = 1l;
+		RechargePlans rechargeRecord = new RechargePlans();
+		rechargeRecord.setRechargeId(1l);;
+		rechargeRecord.setVendorName("Vodafone");
+		rechargeRecord.setDescription("5g speed with 2.5GB daily data and unlimited local/National calls.");
+		rechargeRecord.setAmount(999L);
+		rechargeRecord.setStatus("ACTIVE");
+		when(rechargeServicempl.addRechargePlanDetails(userId,rechargeRecord)).thenReturn("Record created successfully");
+		ResponseEntity<Object> response = rechargeServiceController.addRechargePlanDetails(userId,rechargeRecord);
+		assertThat(response.getStatusCodeValue()).isEqualTo(201);
+		assertEquals(response.getBody(), "Record created successfully");
+	}
+	
+	@Test
+	public void getRechargePlanByIdTest() throws ResourceNotFoundException {
+		RechargePlans rechargePlan = new RechargePlans(3l, "Airtel", 
+				"5g speed with 1.5GB daily data and unlimited local/National calls.", 999l,"ACTIVE",2);
+		when(rechargeServicempl.findById(3l)).thenReturn(rechargePlan);
+		ResponseEntity<Object> response  = rechargeServiceController.getRechargePlanDetails(3l);
+		
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), rechargePlan);
+	}
+	
+	
+	@Test
+	public void getAllRechargePlanTest() {
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(1L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(3L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		rechargePlanList.add(new RechargePlans(4l,"Airtel","5g speed with 2.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",1));
+		when(rechargeServicempl.findAllRechargePlansDetails()).thenReturn(rechargePlanList);
+		ResponseEntity<Object> response = rechargeServiceController.getAllRechargePlansDetails();
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), rechargePlanList);
+	}
+	
+	@Test
+	public void getVendorNameByRechargeId() {
+		String vendorName = "Airtel";
+		long rechargeId=2l;
+		when(rechargeServicempl.getVendorNameByRechargeId(rechargeId)).thenReturn(vendorName);
+		ResponseEntity<Object> response = rechargeServiceController.getVendorNameByRechargeId(rechargeId);
+		assertEquals(response.getStatusCodeValue(), 200);
+		assertEquals(response.getBody(), vendorName);
+	}
+	
+	@Test
+	public void updatePlanTest() {
+		long userId = 1l;
+		RechargePlans rechargePlan = new RechargePlans(3l, "Airtel",
+				"5g speed with 1.5GB daily data and unlimited local/National calls.", 999l, "ACTIVE", 2);
+		when(rechargeServicempl.updateRechargePlansDetails(userId, rechargePlan, rechargePlan.getRechargeId()))
+				.thenReturn("RechargeId : " + rechargePlan.getRechargeId() + " updated successfully!!");
+		ResponseEntity<Object> response = rechargeServiceController.updatePlans(userId, rechargePlan.getRechargeId(),
+				rechargePlan);
+		assertEquals(response.getStatusCodeValue(), 200);
+		assertEquals(response.getBody(), "RechargeId : " + rechargePlan.getRechargeId() + " updated successfully!!");
+	}
+	
+	@Test
+	public void deletePlanTest() {
+		long userId = 1l;
+		long rechargeId = 4l;
+		when(rechargeServicempl.deleteRechargePlanDetailsByRechargeId(userId,rechargeId)).thenReturn("RechargeId : "+rechargeId +" record deleted successfully");
+		ResponseEntity<String> response = rechargeServiceController.deletePlanByRechargeId(userId,rechargeId);
+		assertEquals(response.getStatusCodeValue(), 200);
+		assertEquals(response.getBody(), "RechargeId : "+rechargeId +" record deleted successfully");
+	}
+	
+	@Test
+	public void deletePlanFailTest() {
+		long userId = 3l;
+		long rechargeId = 4l;
+		//when(rechargeServicempl.deleteRechargePlanDetailsByRechargeId(userId,rechargeId)).thenReturn("RechargeId : "+rechargeId +" record deleted successfully");
+		ResponseEntity<String> response = rechargeServiceController.deletePlanByRechargeId(userId,rechargeId);
+		assertEquals(response.getStatusCodeValue(), 404);
+		assertEquals(response.getBody(), "UserId : "+userId+" is not there in DB.");
+	}
+	
+	@Test
+	public void getRechargePlansListByIds() {
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		rechargeIds.add(3l);
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(1L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(3L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		when(rechargeServicempl.getAllRechargePlansById(rechargeIds)).thenReturn(rechargePlanList);
+		ResponseEntity<List<RechargePlans>> response = rechargeServiceController.getRechargePlansListByIds(rechargeIds);
+		assertEquals(response.getStatusCodeValue(), 200);
+		assertEquals(response.getBody(), rechargePlanList);
+	}
+	
+	@Test
+	public void cancelRechargePlanTest() {
+		long rechargeId = 3l;
+		when(rechargeServicempl.cancelRechargePlanByCustomer(rechargeId)).thenReturn("RechargePlan Updated successfuly");
+		ResponseEntity<String> response = rechargeServiceController.cancelRechargePlanByCustomer(rechargeId);
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), "RechargePlan Updated successfuly");
+	}
+	
+	@Test
+	public void cancelRechargePlanFailTest() {
+		long rechargeId = 3l;
+	//	when(rechargeServicempl.cancelRechargePlanByCustomer(rechargeId)).thenReturn("RechargePlan Updated successfuly");
+		ResponseEntity<String> response = rechargeServiceController.cancelRechargePlanByCustomer(rechargeId);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertEquals(response.getBody(), " RechargePlan Not Updated!!");
+	}
+	
+	@Test
+	public void updateRechargePlanByCustomer() {
+		long rechargeId = 3l;
+		when(rechargeServicempl.updateRechargePlanAfterCustomerActivity(rechargeId)).thenReturn("RechargePlan Updated successfuly");
+		ResponseEntity<String> response = rechargeServiceController.updateRechargePlanByCustomerOps(rechargeId);
+		assertEquals(response.getStatusCodeValue(), 200);
+		assertEquals(response.getBody(), "RechargePlan Updated successfuly");
+	}
+	
+	@Test
+	public void updateRechargePlanByCustomerFail() {
+		long rechargeId = 399l;
+	//	when(rechargeServicempl.updateRechargePlanAfterCustomerActivity(rechargeId)).thenReturn("RechargePlan Updated successfuly");
+		ResponseEntity<String> response = rechargeServiceController.updateRechargePlanByCustomerOps(rechargeId);
+		assertEquals(response.getStatusCodeValue(), 404);
+		assertEquals(response.getBody(), "Record Not Found for the rechargeId : "+rechargeId);
+	}
+	
+/*	@Test
+	public void updateRechargePlanByCustomerFailByInactiveCase() {
+		long rechargeId = 1l;
+		when(rechargeServicempl.updateRechargePlanAfterCustomerActivity(rechargeId)).thenReturn("RechargePlan Updated successfuly");
+		ResponseEntity<String> response = rechargeServiceController.updateRechargePlanByCustomerOps(rechargeId);
+		assertEquals(response.getStatusCodeValue(), 200);
+		assertEquals(response.getBody(), "Record Not Found for the rechargeId : "+rechargeId);
+	}  */
+	
+	@Test
+	public void getAllActiveRechargePlan() {
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(1L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(3L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		rechargePlanList.add(new RechargePlans(4l,"Airtel","5g speed with 2.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",1));
+		when(rechargeServicempl.getAllByActivePlans()).thenReturn(rechargePlanList);
+		ResponseEntity<Object> response = rechargeServiceController.getAllActivePlans();
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), rechargePlanList);
+	}
+	
+	@Test
+	public void getAllActiveRechargePlanFailTest() {
+		List<RechargePlans> rechargePlanList = new ArrayList<>();
+		rechargePlanList.add(new RechargePlans(199L,"JIO","5g speed with 1.5GB daily data and unlimited local/National calls.",499L,"ACTIVE",4));
+		rechargePlanList.add(new RechargePlans(399L,"Airtel","5g speed with 1.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",2));
+		rechargePlanList.add(new RechargePlans(499l,"Airtel","5g speed with 2.5GB daily data and unlimited local/National calls.",999L,"ACTIVE",1));
+	//	when(rechargeServicempl.getAllByActivePlans()).thenReturn(rechargePlanList);
+		ResponseEntity<Object> response = rechargeServiceController.getAllActivePlans();
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertNotEquals(response.getBody(), rechargePlanList);
+	}
+}

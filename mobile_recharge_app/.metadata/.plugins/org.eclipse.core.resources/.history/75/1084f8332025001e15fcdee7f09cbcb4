@@ -1,0 +1,35 @@
+package com.web.rechargeService.externalService;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.web.userService.entity.RechargePlans;
+
+@FeignClient(name="RECHARGE-SERVICE")
+public interface RechargeService {
+	
+	@PostMapping("/recharge-service/recharge/")
+	public ResponseEntity<Object> addRechargePlanDetails(@RequestBody RechargePlans rechargePlans);
+	
+	@GetMapping("/recharge-service/recharge/{rechargeId}")
+	public ResponseEntity<Object> getRechargePlanDetails(@PathVariable Long rechargeId);
+	
+	@GetMapping("/recharge-service/recharge/viewAllPlans")
+	public ResponseEntity<Object> getAllRechargePlansDetails();
+	
+	@PutMapping("/recharge-service/recharge/{rechargeId}")
+	public ResponseEntity<Object> updatePlans(@PathVariable Long rechargeId,@RequestBody RechargePlans rechargePlans);
+	
+	@DeleteMapping("/recharge-service/recharge/{rechargeId}")
+	public ResponseEntity<String> deletePlanByRechargeId(@PathVariable Long rechargeId);
+	
+	@GetMapping("/recharge-service/recharge/activePlans")
+	public ResponseEntity<Object> getAllActivePlans();
+}

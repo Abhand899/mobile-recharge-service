@@ -1,0 +1,252 @@
+package com.web.customerService.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.Mockito.when;
+
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+
+import com.web.customerService.entity.Customer;
+import com.web.customerService.externalService.RechargeService;
+import com.web.customerService.externalService.UserService;
+import com.web.customerService.service.CustomerServiceImpl;
+
+@ExtendWith(MockitoExtension.class)
+public class CustomerControllerTest {
+
+	@Mock
+	CustomerServiceImpl customerServiceImpl;
+	
+	@Mock
+	UserService userService;
+	
+	@Mock
+	RechargeService rechargeService;
+	
+	@InjectMocks
+	CustomerController customerController;
+	
+	
+	@Test
+	public void createCustomer() {
+		Customer customer = new Customer();
+		customer.setCustomerId(3l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		customer.setRechargeIds(rechargeIds);
+		when(customerServiceImpl.createCustomer(customer)).thenReturn(customer);
+		ResponseEntity<String> response = customerController.addCustomerDetails(customer);
+		assertEquals(response.getStatusCodeValue(), 201);
+		assertEquals(response.getBody(), "CusotmerId : "+customer.getCustomerId()+" saved successfully!!");
+	}
+	
+	@Test
+	public void createCustomerFailTest() {
+		Customer customer = new Customer();
+		customer.setCustomerId(null);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		
+		customer.setRechargeIds(null);
+		ResponseEntity<String> response = customerController.addCustomerDetails(customer);
+		assertEquals(response.getStatusCodeValue(), 400);
+		assertEquals(response.getBody(), " record not created!!");
+	}
+	
+	
+	@Test
+	public void getCustomerDetailsByIdTest() {
+		Customer customer = new Customer();
+		customer.setCustomerId(3l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		customer.setRechargeIds(rechargeIds);
+		when(customerServiceImpl.findCustomerById(customer.getCustomerId())).thenReturn(customer);
+		Customer customerRecord = customerServiceImpl.findCustomerById(customer.getCustomerId());
+		ResponseEntity<Object> response=customerController.getCustomerDetailsById(customer.getCustomerId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), customerRecord);	
+	}
+	
+	@Test
+	public void getCustomerDetailsByIdFailTest() {
+		Customer customer = new Customer();
+		customer.setCustomerId(399l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		customer.setRechargeIds(rechargeIds);
+		Customer customerRecord = customerServiceImpl.findCustomerById(customer.getCustomerId());
+		ResponseEntity<Object> response=customerController.getCustomerDetailsById(customer.getCustomerId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertNotEquals(response.getBody(), customerRecord);	
+	}
+	
+	@Test
+	public void getAllCustomerDetailsTest() {
+		Long userId=1l;
+		Object customerList = customerServiceImpl.getAllCustomerDetails(userId);
+		ResponseEntity<Object> response=customerController.getAllCustomerDetails(userId);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertEquals(response.getBody()," No Customer Details Are there.");
+	}
+	
+	
+	@Test
+	public void getAllCustomerDetailsFailTest() {
+		Long userId=2l;
+		Object customerList = customerServiceImpl.getAllCustomerDetails(userId);
+		when(customerServiceImpl.getAllCustomerDetails(userId)).thenReturn(customerList);
+		ResponseEntity<Object> response=customerController.getAllCustomerDetails(userId);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertEquals(response.getBody()," No Customer Details Are there.");
+	}
+	
+	@Test
+	public void updateCustomerDetailsTest() {
+		Customer customer = new Customer();
+		customer.setCustomerId(13l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		customer.setRechargeIds(null);
+		when(customerServiceImpl.updateCustomer(customer, customer.getCustomerId())).thenReturn(customer);
+		ResponseEntity<Object> response = customerController.updateCustomerDetails(customer.getCustomerId(),customer);
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), customer);
+	}
+	
+	@Test
+	public void updateCustomerDetailsFailTest() {
+		Customer customer = new Customer();
+		customer.setCustomerId(13l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		customer.setRechargeIds(null);
+		ResponseEntity<Object> response = customerController.updateCustomerDetails(customer.getCustomerId(),customer);
+		assertThat(response.getStatusCodeValue()).isEqualTo(400);
+		assertEquals(response.getBody(), "CustomerId : "+customer.getCustomerId()+" record not updated!!");
+	}
+	
+	@Test
+	public void deleteCustomerDetails() {
+		
+		Customer customer = new Customer();
+		customer.setCustomerId(3l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		customer.setRechargeIds(rechargeIds);
+		when(customerServiceImpl.deleteCustomerDetailsById(customer.getCustomerId())).thenReturn(customer);
+		ResponseEntity<String> response = customerController.deleteCustomerDetails(customer.getCustomerId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), "CustomerId : "+customer.getCustomerId() +"  not deleted!!");
+	}
+	
+	@Test
+	public void deleteCustomerFailDetails() {
+		
+		Customer customer = new Customer();
+		customer.setCustomerId(399l);
+		customer.setActive(true);
+		customer.setCustomerName("Karan");
+		customer.setEmailId("dacac");
+		customer.setRechargePlansList(null);
+		customer.setVendorName("Airtel");
+		customer.setContactNumber(7567567l);
+		customer.setRechargeStatus("RECHARGED");
+		List<Long> rechargeIds = new ArrayList<>();
+		rechargeIds.add(1l);
+		customer.setRechargeIds(rechargeIds);
+		ResponseEntity<String> response = customerController.deleteCustomerDetails(customer.getCustomerId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertEquals(response.getBody(),"CustomerId : "+customer.getCustomerId() +" not found in the database !!");
+	}
+	@Test
+	public void getTotalNoOfSubscribedUserByVendorNameTest() {
+		Long userId = 1l;
+		String vendorName="Vodafone";
+		when(customerServiceImpl.totalNumberOfSubscribedUserByVendorName(userId, vendorName)).thenReturn(0L);
+		ResponseEntity<String> response = customerController.getTotalNoOfSubscribedUserByVendorName(userId,vendorName);
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), "Total Number of subscriber for "+vendorName+" is "+0);
+	}
+	
+	@Test
+	public void getTotalNoOfSubscribedUserByVendorNameFailTest() {
+		Long userId = 2l;
+		String vendorName="Tata";
+		ResponseEntity<String> response = customerController.getTotalNoOfSubscribedUserByVendorName(userId,vendorName);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertEquals(response.getBody(), "No Info available!");
+	}
+	
+	@Test
+	public void cancelCustomerRechargePlanTest() {
+		long customerId=399l;
+		long rechargeId = 1l;
+		ResponseEntity<String> response = customerController.cancellingCustomerRechargePlans(customerId, rechargeId);
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertEquals(response.getBody(), "CustomerId : "+customerId +" for the recharge plan rechargeId="+rechargeId+ " not Cancelled!!");
+	}
+	
+	@Test
+	public void subscribePlanTestFailTest() {
+		long customerId = 91l;
+		long rechargeId = 1l;
+		ResponseEntity<String> response = customerController.subscribePlan(customerId, rechargeId);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		assertEquals(response.getBody(), "CustomerId : "+customerId +" is not there in DB");
+	}
+	
+}

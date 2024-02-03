@@ -1,0 +1,5 @@
+package com.web.rechargeService.config;
+
+public class UserServiceClient {
+
+}

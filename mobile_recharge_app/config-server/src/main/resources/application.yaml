@@ -1,0 +1,15 @@
+server:
+  port: 8088
+  
+  
+spring:
+  application:
+    name: CONFIG-SERVER
+  cloud:
+    config:
+      server:
+        git:
+          uri: file://C://Users//ANJALI.SINGH//Desktop//microservice-config
+      
+
+   

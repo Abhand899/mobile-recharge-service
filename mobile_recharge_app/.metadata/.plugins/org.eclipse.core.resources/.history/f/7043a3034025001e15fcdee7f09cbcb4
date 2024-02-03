@@ -1,0 +1,21 @@
+package com.web.customerService.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import com.web.customerService.entity.Customer;
+
+public interface CustomerService {
+	
+	public Customer createCustomer(Customer customer);
+	
+	public Customer findCustomerById(Long customerId);
+	
+	public Object getAllCustomerDetails();
+	
+	public Customer updateCustomer(Customer customer, Long customerId);
+	
+	public Customer deleteCustomerDetailsById(Long customerId);
+
+	public String subscribingPlan(Long customerId, Long rechargeId);
+}

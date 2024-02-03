@@ -1,0 +1,18 @@
+package com.web.rechargeService.externalService;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.web.rechargeService.entity.RechargePlans;
+
+
+@FeignClient(name="USER-SERVICE")
+public interface UserService {
+	
+	@PostMapping("/recharge-service/recharge/")
+	public ResponseEntity<Object> addRechargePlanDetails(@RequestBody RechargePlans rechargePlans);
+	
+	
+}

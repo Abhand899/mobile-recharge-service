@@ -1,0 +1,48 @@
+feign.httpclient.enabled: true
+
+feign.okhttp.enabled: true
+
+spring.application.name=RECHARGE-SERVICE
+
+spring.config.import= optional:configserver:http://localhost:8088
+
+spring.zipkin.base-url= http://localhost:9411/
+
+management.tracing.sampling.probability:1.0
+
+
+management.health.circuitbreakers.enabled=true
+management.endpoints.web.exposure.include= health
+
+
+management.endpoint.health.show-details=always
+
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.register-health-indicator=true
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.event-consumer-buffer-size=10
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.failure-rate-threshold=50
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.minimum-number-of-calls=5
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.automatic-transition-from-open-to-half-open-enabled=true
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.wait-duration-in-open-state=6s
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.permitted-number-of-calls-in-half-open-state=3
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.sliding-window-size=10
+resilience4j.circuitbreaker.instances.rechargeServiceAdd.sliding-window-type=COUNT_BASED
+
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.register-health-indicator=true
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.event-consumer-buffer-size=10
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.failure-rate-threshold=50
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.minimum-number-of-calls=5
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.automatic-transition-from-open-to-half-open-enabled=true
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.wait-duration-in-open-state=6s
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.permitted-number-of-calls-in-half-open-state=3
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.sliding-window-size=10
+resilience4j.circuitbreaker.instances.rechargeServiceUpdate.sliding-window-type=COUNT_BASED
+
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.register-health-indicator=true
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.event-consumer-buffer-size=10
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.failure-rate-threshold=50
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.minimum-number-of-calls=5
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.automatic-transition-from-open-to-half-open-enabled=true
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.wait-duration-in-open-state=6s
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.permitted-number-of-calls-in-half-open-state=3
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.sliding-window-size=10
+resilience4j.circuitbreaker.instances.rechargeServiceDelete.sliding-window-type=COUNT_BASED

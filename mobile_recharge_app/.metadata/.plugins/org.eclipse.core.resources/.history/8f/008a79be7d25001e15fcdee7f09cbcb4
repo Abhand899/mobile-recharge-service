@@ -1,0 +1,5 @@
+package com.web.rechargeService.externalService;
+
+public class UserServiceConfiguration {
+
+}
